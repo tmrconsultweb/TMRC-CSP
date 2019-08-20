@@ -1,0 +1,110 @@
+﻿
+<div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="SubscriptionsModalLabel">Modal title</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div id="Subscriptionsexample">
+                <div id="Subscriptionsgrid"></div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="AdsOnSubscriptionsModal" aria-labelledby="exampleModalLabel" data-backdrop="static" data-keyboard="false" role="dialog" aria-hidden="true">
+    @Html.Partial("_AdsOnSubscriptions")
+</div>  
+
+<script>
+
+    function OpenPriceModel(id, name, url = "Admin") {
+        $("#SubscriptionsModalLabel").html("Subscriptions of (" + name + ")");
+        var crudServiceBaseUrl = window.location.origin,
+
+        dataSource = new kendo.data.DataSource({
+            transport: {
+                read: {
+                    url: crudServiceBaseUrl + "/" + url + "/Subscriptions?CustomerId=" + id,
+                    dataType: "json",
+                },
+                parameterMap: function (options, operation) {
+                    if (operation !== "read" && options.models) {
+                        return { models: kendo.stringify(options.models) };
+                    }
+                }
+            },
+            batch: true,
+            pageSize: 20,
+
+            schema: {
+                model: {
+                    id: "Id",
+                    fields: {
+                        Id: { editable: false, nullable: true },
+                        FriendlyName: { editable: false, },
+                        Quantity: { editable: false },
+                        UnitType: { editable: false },
+                        CommitmentEndDate: { type: "date", editable: false },
+                        EffectiveStartDate: { type: "date", editable: false },
+                        CreationDate: { type: "date", editable: false },
+                        AutoRenewEnabled: { editable: false },
+                    }
+                }
+            },
+
+        });
+
+        $("#Subscriptionsgrid").kendoGrid({
+            dataSource: dataSource,
+            pageable: false,
+            filterable: true,
+            sortable: true,
+            filterMenuInit: function (e) {
+                $(e.container).css("width", "200px")
+            },
+            height: 400,
+            columns: [
+                {
+                    field: "FriendlyName", title: "Offer Name", width: "150px", filterable: { multi: true, search: true },
+                    template: "<a onclick=OpenAdsOnModel('#:Id#','#FriendlyName#','" + id + "','" + url +"') data-toggle='modal' data-target='\\#AdsOnSubscriptionsModal' class='Users'>#:FriendlyName#</a>"
+                },
+                {
+                    field: "Quantity", title: "Quantity", width: "150px",
+                    template: "#= Quantity + ' ' + UnitType #", filterable: {
+                        extra: false,
+                        operators: {
+                            string: {
+                                startswith: "Starts with",
+                                eq: "Is equal to",
+                                neq: "Is not equal to"
+                            }
+                        }
+                    }
+                },
+                {
+                    field: "CommitmentEndDate", title: "Status", width: "150px", format: "{0:dd/MM/yyyy}", filterable: {
+                        extra: false,
+                        operators: {
+                            string: {
+                                startswith: "Starts with",
+                                eq: "Is equal to",
+                                neq: "Is not equal to"
+                            }
+                        }
+                    }
+                },
+            ],
+            editable: "inline",
+        });
+    }
+
+    
+</script>
+

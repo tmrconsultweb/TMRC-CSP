@@ -1,0 +1,16 @@
+﻿@model TMRC_CSP.Models.Invoice
+@{
+    ViewBag.Title = "Cofirmation";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+@Html.Partial("_Steps", 4)
+
+
+@Html.Partial("_Invoice", Model)
+
+<div class="actions clearfix text-right">
+    @Html.ActionLink("Buy Now", "BuyNow", "Admin", null, new { @class = "btn btn-info" })
+</div>
+@Styles.Render("~/Content/Invoice")
+

@@ -1,0 +1,57 @@
+﻿@model List<TMRC_CSP.Models.Customers>
+@{
+    ViewBag.Title = "Reseller Request";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<h2>New Reseller Request</h2>
+
+<h2> @{ if (ViewBag.IsDeleted == true) {
+        <p>Deleted Successfully</p>
+    }
+    else if (ViewBag.IsDeleted == false)
+    {
+        <p>Unknown error occur, Please try again.</p>
+    } }</h2>
+@Html.ActionLink("Add New Reseller", "CreateCustomerAccount", "Admin")
+<table>
+    <thead>
+        <tr>
+            <th>Reseller Name</th>
+            <th>Phone No.</th>
+            <th>Email</th>
+            <th>Company</th>
+            <th>Country</th>
+            <th>Address</th>
+            <th>City</th>
+            <th>Province</th>
+            <th>ZipCode</th>
+            <th>Created Date</th>
+            <th>Additional Information</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var i in Model)
+        {
+            <tr>
+                <td>@i.FirstName, @i.LastName</td>
+                <td>@i.PhoneNumber</td>
+                <td>@i.Email</td>
+                <td>@i.Company</td>
+                <td>@i.Country</td>
+                <td>@i.Address1 / @i.Address2</td>
+                <td>@i.City</td>
+                <td>@i.Province</td>
+                <td>@i.ZipCode</td>
+                <td>@i.CreatedDate</td>
+                <td>@i.AdditionalInfo</td>
+                <td>
+                    @Html.ActionLink("Edit","EditRequest","Admin", new { id = i.Id },null) <b>-</b>
+                    @Html.ActionLink("Delete", "DeleteRequest", "Admin", new { id = i.Id }, new { onclick = "return confirm('Are you sure you wish to delete this Reseller Request?');" }) <b>-</b>
+                    @Html.ActionLink("Accept", "CreateCustomerAccount", "Admin", new { id = i.Id }, null)
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -1,0 +1,123 @@
+﻿@model TMRC_CSP.Models.InvoiceSetting
+
+@using (Html.BeginForm(FormMethod.Post))
+{
+    <div class="form-horizontal">
+        <div class="form-group">
+            <label class=" col-sm-3" for="accountno">Account number:</label>
+            <div class="col-sm-3">
+                @Html.TextBoxFor(m => m.AccNo, new { @class = "form-control", placeholder = "Enter your Account no", type = "number" })
+                <div class="checkbox">
+                    <label class=" col-sm-6">
+                        @Html.EditorFor(m => m.IsShowAccNo, new { htmlAttributes = new { onchange = "IsShow(this)" } })
+                        @Html.LabelFor(model => model.IsShowAccNo, new { @class = "control-label col-md-2",  })
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class=" col-sm-3" for="accountno">IBN number:</label>
+            <div class="col-sm-3">
+                @Html.TextBoxFor(m => m.IBAN, new { @class = "form-control", placeholder = "Enter your IBN no", type = "number" })
+                <div class="checkbox">
+                    <label class=" col-sm-6">
+                        @Html.EditorFor(m => m.IsShowIBAN, new { htmlAttributes = new { onchange = "IsShow(this)" } })
+                        @Html.LabelFor(model => model.IsShowIBAN, new { @class = "control-label col-md-2" })
+                    </label>
+
+                </div>
+            </div>
+        </div>
+
+
+        <div class="form-group">
+            <label class=" col-sm-3" for="accountno">Swift number:</label>
+            <div class="col-sm-3">
+                @Html.TextBoxFor(m => m.SWIFT, new { @class = "form-control", placeholder = "Enter your SWIFT no", type = "number" })
+                <div class="checkbox">
+                    <label class=" col-sm-6">
+                        @Html.EditorFor(m => m.IsShowSWIFT, new { htmlAttributes = new { onchange = "IsShow(this)" } })
+                        @Html.LabelFor(model => model.IsShowSWIFT, new { @class = "control-label col-md-2" })
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class=" col-sm-3" for="Notes">Notes:</label>
+            <div class="col-sm-9">
+                @Html.TextAreaFor(m => m.InvoiceNotes, new { @class = "form-control", placeholder = "Enter your Notes",rows="12" })
+                <div class="checkbox">
+                    <label class=" col-sm-6">
+                        @Html.EditorFor(m => m.IsShowNotes, new { htmlAttributes = new { onchange = "IsShow(this)" } })
+                        @Html.LabelFor(model => model.IsShowNotes, new { @class = "control-label col-md-2" })
+                    </label>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="form-group">
+            <label class=" col-sm-3" for="date">Expiry days:</label>
+            <div class="col-sm-3">
+                @Html.TextBoxFor(m => m.ExpiryDateOfInvoice, new { @class = "form-control", placeholder = "Enter Days" })
+                <div class="checkbox">
+                    <label class=" col-sm-6">
+                        @Html.EditorFor(m => m.IsShowNotes, new { htmlAttributes = new { onchange = "IsShow(this)" } })
+                        @Html.LabelFor(model => model.IsShowExpiryDate,  new { @class = "control-label col-md-2" })
+                    </label>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="checkbox">
+                <label class=" col-sm-3">
+                    @Html.EditorFor(m => m.IsShowIssueDate)
+                    @Html.LabelFor(model => model.IsShowIssueDate, htmlAttributes: new { @class = "control-label col-md-2" })
+                </label>
+
+                <label class=" col-sm-3">
+                    @Html.EditorFor(m => m.IsShowLogo)
+                    @Html.LabelFor(model => model.IsShowLogo, htmlAttributes: new { @class = "control-label col-md-2" })
+                </label>
+
+                <label class=" col-sm-3">
+                    @Html.EditorFor(m => m.IsShowPOBox)
+                    @Html.LabelFor(model => model.IsShowPOBox, htmlAttributes: new { @class = "control-label col-md-2" })
+                </label>
+
+                <label class=" col-sm-3">
+                    @Html.EditorFor(m => m.IsShowCurrency)
+                    @Html.LabelFor(model => model.IsShowCurrency, htmlAttributes: new { @class = "control-label col-md-2" })
+                </label>
+
+            </div>
+        </div>
+
+        <div class="form-group text-right">
+            <input type="submit" class="btn btn-info" value="Save" />
+        </div>
+    </div>
+}
+
+
+
+<script>
+    function IsShow(e) {
+        if ($(e).prop("checked") == true)
+            $(e).parent().parent().siblings("input").prop("disabled", false);
+        else
+            $(e).parent().parent().siblings("input").prop("disabled", true);
+    }
+</script>
+
+
+
+
+
+
+
+
+
+

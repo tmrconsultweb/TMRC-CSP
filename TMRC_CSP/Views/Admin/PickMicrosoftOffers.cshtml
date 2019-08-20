@@ -1,0 +1,262 @@
+﻿@{
+    ViewBag.Title = "PickMicrosoftOffers";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<link rel="stylesheet" href="https://kendo.cdn.telerik.com/2019.2.514/styles/kendo.common-material.min.css" />
+<link rel="stylesheet"
+      href="https://kendo.cdn.telerik.com/2019.2.514/styles/kendo.material.min.css" />
+<link rel="stylesheet"
+      href="https://kendo.cdn.telerik.com/2019.2.514/styles/kendo.material.mobile.min.css" />
+
+
+<script src="https://kendo.cdn.telerik.com/2019.2.514/js/jquery.min.js"></script>
+<script src="https://kendo.cdn.telerik.com/2019.2.514/js/kendo.all.min.js"></script>
+
+<script>
+    function Show(e) {
+        $(".detailRow").toggle("slow");
+        $(e).parent().siblings(".detailRow").toggle("slow");
+    }
+
+    function AddToCart(e, Id) {
+        var license = $(e).siblings('Input').val();
+        if (license != "" && license != 0) {
+            $.ajax({
+                url: "/Admin/AddToCart",
+                data: { 'Id': Id, 'License': license },
+                success: function (result) {
+                    if (result == "Successfully Add") {
+                        $(e).siblings("b").html("Successfully " + license + " License has been added.").addClass("text-success").removeClass("text-danger");
+                        $(e).siblings('Input').val('');
+                    }
+                    else
+                        $(e).siblings("b").html(result).addClass("text-danger").removeClass("text-success");
+                }
+            });
+        }
+        else {
+            $(e).siblings("b").html("Please mention the license.").addClass("text-danger").removeClass("text-success")
+        }
+        
+    };
+</script>
+
+
+@Html.Partial("_Steps", 2)
+
+
+<h2>Pick Microsoft  Offers for Customers</h2>
+<hr />
+
+<div id="example">
+    <div id="grid"></div>
+    <script type="text/x-kendo-template" id="template">
+        <div class="tabstrip">
+            <ul>
+                <li class="k-state-active">
+                    Detail Information
+                </li>
+            </ul>
+
+            <div>
+                <div class='employee-details'>
+                    <ul>
+                        <li><label>Detail:</label>#= Offer.Description #</li>
+                        @*<li><label>Cutomer Price:</label>#= CustomerPrice #</li>*@
+                        <li><label>MicrosoftId:</label><span>#= Offer.Id #</span></li>
+                        <li><label>Buying Price:</label><span></span></li>
+                        <li><label>Customer Price:</label><span></span></li>
+                        <li><label>Price Unit:</label><span></span></li>
+                        <li>
+                            <label>License:</label> <input type="number" max="100" min="0" onkeyup="IsNumber(this)" />   <a onclick="AddToCart(this, '#= Offer.Id #')">Add To Cart</a>
+                            &nbsp;&nbsp;&nbsp;&nbsp;<b class=""></b>
+                        </li>
+                        @*<li><label>PurchaseUnitNumber:</label>#= PurchaseUnitNumber #</li>*@
+                        @*<li><label>PurchaseUnit:</label>#= PurchaseUnit #</li>*@
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+    </script>
+   
+    <script>
+
+
+
+
+        function filterAutoCompleteDataSource(e) {
+            var gridFilter = e.sender.dataSource.filter();
+           // console.log(e.sender.element.find(".k-autocomplete input").data("kendoAutoComplete").dataSource.filter(gridFilter))
+            e.sender.element.find(".k-autocomplete input").data("kendoAutoComplete").dataSource.filter(gridFilter);
+        }
+
+            $(document).ready(function () {
+                var crudServiceBaseUrl = window.location.origin,
+
+                dataSource = new kendo.data.DataSource({
+                    //type: "odata",
+                    transport: {
+                        read: {
+                            url: crudServiceBaseUrl + "/Admin/GetMicrosoftOffers",
+                            dataType: "json",
+                        },
+                        update: {
+                            url: crudServiceBaseUrl + "/Admin/UpdateCustomers",
+                            dataType: "json",
+                        },
+                        parameterMap: function (options, operation) {
+                            if (operation !== "read" && options.models) {
+                                return { models: kendo.stringify(options.models) };
+                            }
+                        }
+                    },
+                    batch: true,
+
+
+                    schema: {
+                        model: {
+                            //id: "Id",
+                            fields: {
+                                MicrosoftId: {
+                                    field: "Offer.Id",
+                                },
+                                Name: {
+                                    field: "Offer.Name",
+                                    type: "string"
+                                },
+                                Category: {
+                                    field: "Offer.Category.Name",
+                                    type: "string"
+                                },
+                                Description: {
+                                    field: "Offer.Description",
+                                },
+                            }
+                        }
+                    },
+                    //pageSize: 20,
+                    //filter: { field: "MicrosoftId", operator: "eq", value: e.data.Offer.Id },
+
+                });
+
+                $("#grid").kendoGrid({
+                    dataSource: dataSource,
+                    detailTemplate: kendo.template($("#template").html()),
+                    detailInit: detailInit,
+                    //dataBound: filterAutoCompleteDataSource,
+                //    function () {
+                //    this.expandRow(this.tbody.find("tr.k-master-row").first());
+                //},
+
+                    pageable: false,
+                    filterable: true,
+                    sortable: true,
+                    filterMenuInit: function (e) {
+                        $(e.container).css("width", "200px")
+                    },
+                   // scrollable: true,
+                    height: 600,
+                    //toolbar: [{ name:"create", template: "<input type='submit' value='Add new'onclick=\"location.href='@Url.Action("CreateCustomerAccount", "Admin")'\" />" }],
+
+                    columns:
+                    [
+                        //{
+                        //field: "MicrosoftId",
+                        //width: 250,
+
+                        //},
+                        {
+                        field: "Name",
+                        width: 300,
+                        title: "Name", filterable: { multi: true, search: true }
+                    }, {
+                        field: "Category",
+                        width: 80, filterable: { multi: true, search: true }
+                        },
+                    //    {
+                    //    field: "Description",
+                    //    title: "Description",
+                    //    width: 200,
+                    //}
+                    ]
+                });
+        });
+
+            function detailInit(e) {
+
+
+
+            var detailRow = e.detailRow;
+            var crudServiceBaseUrl = window.location.origin;
+            detailRow.find(".tabstrip").kendoTabStrip({
+                animation: {
+                    open: { effects: "fadeIn" }
+                }
+            });
+            //var p = $(e.detailCell[0].childNodes[1].className);
+            //console.log("." +e.detailCell[0].childNodes[1].className + " ul li:nth-child(3)");
+
+            //$("."+e.detailCell[0].childNodes[1].className +" ul li:nth-child(3) p").html(3);
+            //$("." +e.detailCell[0].childNodes[1].className + " ul li:nth-child(4) p").html(4);
+            //$("." +e.detailCell[0].childNodes[1].className + " ul li:nth-child(5) p").html(5);
+
+            var Id = $("." + e.detailCell[0].childNodes[1].className + " ul li:nth-child(2) span").html();
+                //Get microsoft Price List
+            $.ajax({
+                url: "/Admin/GetMicrosoftOffersPrice",
+                data: { 'Id': Id },
+                success: function (result) {
+                    console.log(result);
+                    $("." + e.detailCell[0].childNodes[1].className + " ul li:nth-child(3) span").html((result.Price).toFixed(2));
+                    $("." + e.detailCell[0].childNodes[1].className + " ul li:nth-child(4) span").html((result.CustomerPrice).toFixed(2));
+                    $("." + e.detailCell[0].childNodes[1].className + " ul li:nth-child(5) span").html(result.PurchaseUnitNumber + " " + (result.PurchaseUnit == 2 ? "Months" : result.PurchaseUnit == 3 ? "Years": "none"));
+                }
+            });
+
+            //detailRow.find(".orders").kendoGrid({
+            //    dataSource: {
+            //        //type: "odata",
+            //        transport: {
+            //            read: crudServiceBaseUrl + "/Admin/GetMicrosoftOffersPrice",
+            //            dataType: "json",
+            //        },
+            //        serverPaging: true,
+            //        serverSorting: true,
+            //        serverFiltering: true,
+            //        pageSize: 7,
+            //        filter: { field: "MicrosoftId", operator: "eq", value: e.data.Offer.Id }
+            //    },
+            //    scrollable: false,
+            //    sortable: true,
+            //    pageable: true,
+            //    columns: [
+            //        { field: "MicrosoftId", width: "110px" },
+            //        { field: "Price", title: "Buying Price", width: "110px" },
+            //        { field: "CustomerPrice", title: "Customer Price" },
+            //        { field: "PurchaseUnitNumber", title: "PurchaseUnitNumber", width: "300px"},
+            //        { field: "PurchaseUnit", title: "PurchaseUnit", width: "300px" }
+            //    ]
+            //});
+            }
+
+           
+    </script>
+</div>
+
+
+<div class="actions clearfix text-right mt-10">
+    @Html.ActionLink("Previous", "SelectCustomers", "Admin", null, new { @class = "btn btn-default" })
+    @Html.ActionLink("Next", "Cart", "Admin", null, new { @class = "btn btn-info" })
+</div>
+
+
+    <script>
+            function IsNumber(e) {
+                if (Number($(e).val()) > Number($(e).attr('max'))) {
+                    $(e).val($(e).attr('max'))
+                }
+                $(e).val($(e).val().replace(/[^0-9]/g, ''));
+            }
+    </script>

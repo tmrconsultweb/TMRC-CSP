@@ -1,0 +1,293 @@
+﻿@model List<TMRC_CSP.Models.CartMicrosoftPriceRepo>
+@{
+    ViewBag.Title = "Cart";
+    Layout = "~/Areas/Reseller/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Cart</h2>
+
+<script>
+    // Restricts input for each element in the set of matched elements to the given inputFilter.
+   
+    function DelItem(e, Id) {
+
+        $.ajax({
+            url: "/Admin/DeleteItem",
+            data: { 'Id': Id },
+            success: function (result) {
+                if (result == "Deleted")
+                    $(e).parent().parent('tr').remove();
+                else
+                    alert(result);
+            }
+        });
+    };
+
+    function SelectDiscount(e) {
+        $("input[name='DefaultPercentage'], input[name='PromoCode']").attr('disabled', 'true');
+        $(e).siblings('input').removeAttr('disabled');
+
+    }
+
+    function UpdateItem(e, CartId) {
+        var parent = $(e).parent().parent('tr');
+        var License = parent.find("td input[type = 'number']").val(); // $(parent + " input[type='number']").val();
+        var BillingFrequency = parent.find("td select option:selected").val();//$(parent + " select option:selected").val();
+        $.ajax({
+            url: "/Admin/UpdateItem",
+            data: { 'Id': CartId, 'License': License, 'BillingFrequency': BillingFrequency },
+            success: function (result) {
+                if (result.indexOf("Successfully")) {
+
+                    alert("Successfully Item has been Update.");
+                }
+                else
+                    alert(result);
+            }
+        });
+    }
+
+
+    function CalcPrice(e) {
+        var parent = $(e).parent().parent('tr');
+
+        var License = parent.find("td input[type = 'number']").val();
+
+
+        var BillingFrequency = parent.find("td select option:selected").val();
+
+        var UnitPrice = parent.find("td:nth-child(4)").html();
+
+        
+
+        //var TotalPrice = parent.find("td:nth-child(6)").html();
+        //console.log(TotalPrice);
+
+        //var OverAllTotalPrice = parent.parent('table').find("tr:last-child td:nth-child(2)").html();
+
+        parent.find("td:nth-child(5)").html((License * UnitPrice  * BillingFrequency).toFixed(2));
+
+        //parent.parent('table').find("tr:last-child td:nth-child(2)").html()
+
+        var Amount = 0;
+        $("#tblprice tr td:nth-child(5)").each(function (index) {
+            //Check if number is not empty
+            if ($.trim($(this).html()) != "")
+                //Check if number is a valid integer
+                if (!isNaN($(this).html()))
+                    Amount = Amount + parseFloat($(this).html());
+        });
+        console.log(Amount);
+        var DiscountPrice = ($("input[name='DefaultPercentage']").val() * Amount) / 100;
+        console.log($("input[name='DefaultPercentage']").val())
+        $("#OverAllTotalPrice td:nth-child(2)").html(Amount);
+        $("#DiscountPrice td:nth-child(2)").html(DiscountPrice.toFixed(2));
+        $("#RemainingTotal td:nth-child(2)").html((Amount - DiscountPrice).toFixed(2));
+    }
+</script>
+
+
+@Html.Partial("_Steps", 3)
+
+@if (ViewBag.msg != null)
+{
+    <p>@ViewBag.msg</p>
+
+    <div class="actions clearfix text-right">
+        @Html.ActionLink("Back", "PickMicrosoftOffers", "Home", new { Area = "Reseller" }, new { @class = "btn btn-default" })
+    </div>
+}
+else
+{
+    float OverAllTotalPrice = 0;
+    float DiscountMargin = Convert.ToSingle(TempData["Margin"]);
+    float RemainingTotal = 0;
+    float DiscountPrice = 0;
+    <h2>Cart</h2>
+
+
+    using (Html.BeginForm("Cart", "Home", new { Area = "Reseller" }, FormMethod.Post))
+    {
+        <div class="row">
+            <div class="col-lg-4">
+                <input type="radio" name="Per" checked onclick="SelectDiscount(this)" />
+                <b>Default Percentage</b>
+                <input id="DefaultPercentage" type="number" validation="true" name="DefaultPercentage" value="@DiscountMargin" class="form-control" min="0" max="100" />
+            </div>
+        </div>
+        <br />
+        <div class="row">
+            <div class="col-lg-4">
+                <input type="radio" name="Per" onclick="SelectDiscount(this)" />
+                <b>Add Promo Code <small>(Do you have a Promo Code?)</small></b>
+                <input type="text" disabled name="PromoCode" class="form-control" />
+            </div>
+            <div class="col-lg-8 text-right">
+                <input type="submit" value="Apply" class="btn btn-default" />
+            </div>
+        </div>
+        <div class="row" id="discountPercentage">
+            <div class="col-lg-12 text-center">
+                <p class="text-danger"><b>Discount Percentage =</b> @DiscountMargin%</p>
+            </div>
+        </div>
+    }
+    <br /><br /><br />
+
+    using (Html.BeginForm(FormMethod.Post))
+    {
+        <table width="100%" id="tblprice" class="table color-table muted-table">
+            <tr>
+                <th>Name</th>
+                <th>Billing Frequency</th>
+                <th>License</th>
+                <th>Original Price</th>
+                <th>Total Price</th>
+                <th>Action</th>
+            </tr>
+
+            @foreach (var i in Model)
+            {
+                float UnitPrice = (float)System.Math.Round(i.ERPrice, 2);
+
+                string isSelected1 = "", isSelected2 = "", isSelected3 = "", isSelected4 = "";
+                if (i.PurchaseUnitNumber == 1)
+                {
+                    isSelected1 = "selected";
+                }
+                else if (i.PurchaseUnitNumber == 2)
+                {
+                    isSelected2 = "selected";
+                }
+                else if (i.PurchaseUnitNumber == 3)
+                {
+                    isSelected3 = "selected";
+                }
+                else if (i.PurchaseUnitNumber == 4)
+                {
+                    isSelected4 = "selected";
+                }
+
+
+                    float TotalPrice = (float)System.Math.Round(i.License * UnitPrice * i.PurchaseUnitNumber, 2);  //12 means for one year bydefault license duration
+                    OverAllTotalPrice += TotalPrice;
+                    DiscountPrice = (float)System.Math.Round((OverAllTotalPrice * DiscountMargin) / 100, 2);
+                    RemainingTotal = OverAllTotalPrice - DiscountPrice;
+                <tr>
+                    <td>@i.Name</td>
+                    <td>
+                        @{
+                            List<SelectListItem> listItems = new List<SelectListItem>();
+                            listItems.Add(new SelectListItem
+                            {
+                                Text = "1 Month",
+                                Value = "1",
+                                Selected = i.PurchaseUnitNumber == 1 ? true : false
+                            });
+                            listItems.Add(new SelectListItem
+                            {
+                                Text = "3 Month",
+                                Value = "3",
+                                Selected = i.PurchaseUnitNumber == 3 ? true : false
+                            });
+                            listItems.Add(new SelectListItem
+                            {
+                                Text = "6 Month",
+                                Value = "6",
+                                Selected = i.PurchaseUnitNumber == 6 ? true : false
+                            });
+                            listItems.Add(new SelectListItem
+                            {
+                                Text = "1 Year",
+                                Value = "12",
+                                Selected = i.PurchaseUnitNumber == 12 ? true : false
+                            });
+                        }
+
+                        @Html.DropDownListFor(m => i.PurchaseUnitNumber, listItems, "", new { @class = "form-control", onchange = "CalcPrice(this)" })
+                        @*<select class="form-control" onchange="CalcPrice(this)">
+                                <option @isSelected1  value="1">1 Month</option>
+                                <option @isSelected2 value="3">3 Month</option>
+                                <option @isSelected3 value="6">6 Month</option>
+                                <option @isSelected4 value="12">1 Year</option>
+                            </select>*@
+                    </td>
+                    <td> <input class="form-control" type="number" name="License" onkeyup="CalcPrice(this)" value="@i.License" min="1" max="1000" /> </td>
+                    <td>@UnitPrice</td>
+                    <td>@TotalPrice</td>
+                    <td>
+                        <a onclick="DelItem(this,'@i.CartId')">Delete</a> |
+                        <a onclick="UpdateItem(this,'@i.CartId')">Update</a>
+                    </td>
+                </tr>
+                            }
+
+            <tr id="OverAllTotalPrice">
+                <td colspan="5" class="text-right">Total</td>
+                <td>@OverAllTotalPrice</td>
+                <td></td>
+            </tr>
+            <tr id="DiscountPrice">
+                <td colspan="5" class="text-right">Discount</td>
+                <td>@DiscountPrice</td>
+                <td></td>
+            </tr>
+            <tr id="RemainingTotal">
+                <td colspan="5" class="text-right">Net Total</td>
+                <td>@RemainingTotal</td>
+                <td></td>
+            </tr>
+        </table>
+
+                            }
+
+                            <div class="actions clearfix text-right">
+                                @Html.ActionLink("Delete All", "DeleteAll", "Home", new { Area = "Reseller" })
+                                @Html.ActionLink("Previous", "SelectCustomers", "Home", new { Area = "Reseller" }, new { @class = "btn btn-default" })
+                                @Html.ActionLink("Next", "Confirmation", "Home", new { Area = "Reseller" }, new { @class = "btn btn-info" })
+                            </div>
+                            }
+
+<script>
+
+    //(function ($) {
+    //    $.fn.inputFilter = function (inputFilter) {
+
+    //        return this.on("input keydown keyup mousedown mouseup select contextmenu drop", function () {
+    //            if (inputFilter(this.value)) {
+
+    //                this.oldValue = this.value;
+    //                this.oldSelectionStart = this.selectionStart;
+    //                this.oldSelectionEnd = this.selectionEnd;
+    //            } else if (this.hasOwnProperty("oldValue")) {
+    //                console.log(this.type)
+    //                // console.log(this.oldSelectionEnd)
+    //                try {
+    //                    if (this.type == "number") {
+    //                        this.value = this.oldValue;
+    //                        this.setSelectionRange(0, 0);
+    //                    }
+    //                    else {
+    //                        this.value = this.oldValue;
+    //                        this.setSelectionRange(this.oldSelectionStart, this.oldSelectionEnd);
+    //                    }
+
+    //                }
+    //                catch (abc) { }
+    //            }
+    //        });
+    //    };
+    //}(jQuery));
+    //$("input[type='number']").inputFilter(function (value) {
+    //    console.log($(this));
+    //    return /^\d*$/.test(value) && (value === "" || parseInt(value) <= 100);
+    //});
+
+    $('input[type="number"]').bind('keyup paste', function () {
+        this.value = this.value.replace(/[^0-9]/g, '');
+    }).keyup(function () {
+        if (Number($(this).val()) > Number($(this).attr('max'))) {
+            $(this).val($(this).attr('max'))
+        }
+    });
+</script>

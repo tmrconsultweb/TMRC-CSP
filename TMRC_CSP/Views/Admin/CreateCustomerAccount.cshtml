@@ -1,0 +1,16 @@
+﻿@model TMRC_CSP.Models.Customers
+
+@{
+    ViewBag.Title = "Create Customer Account";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<h2>Create Customer Account</h2>
+
+@using (Html.BeginForm(FormMethod.Post))
+{
+
+    @Html.Partial("_AddEditCustomers", Model)
+}
+
+

@@ -1,0 +1,232 @@
+﻿
+@{
+    ViewBag.Title = "OffersPriceList";
+    Layout = "~/Areas/Reseller/Views/Shared/_Layout.cshtml";
+}
+
+@*<base href="https://demos.telerik.com/kendo-ui/grid/editing-inline">*@
+<style>
+    html {
+        font-size: 14px;
+        font-family: Arial, Helvetica, sans-serif;
+    }
+</style>
+<link rel="stylesheet" href="https://kendo.cdn.telerik.com/2019.2.514/styles/kendo.common-material.min.css" />
+<link rel="stylesheet" href="https://kendo.cdn.telerik.com/2019.2.514/styles/kendo.material.min.css" />
+<link rel="stylesheet" href="https://kendo.cdn.telerik.com/2019.2.514/styles/kendo.material.mobile.min.css" />
+
+
+<script src="https://kendo.cdn.telerik.com/2019.2.514/js/jquery.min.js"></script>
+<script src="https://kendo.cdn.telerik.com/2019.2.514/js/kendo.all.min.js"></script>
+
+
+<h2>Price List</h2>
+
+
+
+
+
+<div id="example">
+    <div id="grid"></div>
+
+
+    <script>
+        $(document).ready(function () {
+            var crudServiceBaseUrl = window.location.origin; //"https://demos.telerik.com/kendo-ui/service",
+
+            dataSource = new kendo.data.DataSource({
+                transport: {
+                    read: {
+                        url: crudServiceBaseUrl + "/Reseller/Home/GetPriceList",
+                        dataType: "json"
+                    },
+                    update: {
+                        url: crudServiceBaseUrl + "/Reseller/Home/UpdatePrice",
+                        dataType: "json",
+                    },
+                    parameterMap: function (options, operation) {
+                        if (operation !== "read" && options.models) {
+                            return { models: kendo.stringify(options.models) };
+                        }
+                    }
+                },
+                batch: true,
+                pageSize: 20,
+
+                schema: {
+                    model: {
+                        id: "Id",
+                        fields: {
+                            Id: { editable: false, nullable: true },
+                            MicrosoftId: { type: "string", editable: false, },
+                            Name: { type: "string", editable: false, },
+                            AgreementType: { type: "string", editable: false },
+                            CustomerType: { type: "string", editable: false },
+                            LicenseType: { type: "string", editable: false },
+                            StartDate: { type: "date", editable: false },
+                            EndDate: { type: "date", editable: false },
+                            PurchaseUnit: { editable: false },
+                            ResellerPrice: { type: "number", editable: false },
+                            CustomerPrice: { type: "number", validation: { required: true, min: 1 } },
+                            CustomerPricePercentage: { type: "number", editable: true }
+
+                        }
+                    }
+                },
+                change: function (e) {
+
+                    if (e.action === "itemchange" && (e.field == "CustomerPrice" || e.field == "CustomerPricePercentage")) {
+
+                        var model = e.items[0],
+                            ResellerPrice = model.ResellerPrice,
+                            CustomerPrice = model.CustomerPrice,
+                            CustomerPricePercentage = model.CustomerPricePercentage;
+                        // currentValue = formulas[type](model);
+
+
+                        if (e.field == "CustomerPrice") {
+                            var per = (((CustomerPrice - ResellerPrice) * 100) / ResellerPrice).toFixed(2);
+                            //console.log(model.uid);
+                            //var PercField = $("#grid").find("tr[data-uid='" + model.uid + "']  td:nth-child(9) input:first-child");
+                            //PercField.prop('title', per).attr('aria-valuenow', per).siblings().attr('aria-valuenow', per);
+
+
+                            //alert("Product Name Changed");
+                            var Id = e.items[0].Id;
+                            var grid = $("#grid").data("kendoGrid");
+                            var dataItem = grid.dataSource.get(Id);
+                            dataItem.set("CustomerPricePercentage", per);
+
+                            // model.CustomerPricePercentage = 10;
+                        }
+                        else if (e.field == "CustomerPricePercentage") {
+                            var CusValue = (((CustomerPricePercentage * ResellerPrice) / 100) + ResellerPrice).toFixed(2);
+                            var Id = e.items[0].Id;
+                            var grid = $("#grid").data("kendoGrid");
+                            var dataItem = grid.dataSource.get(Id);
+                            dataItem.set("CustomerPrice", CusValue);
+                        }
+
+                        //if (currentValue !== model.Amount) {
+                        //    model.Amount = currentValue;
+                        //    $("#grid").find("tr[data-uid='" + model.uid + "'] td:eq(4)").text(currentValue);
+                        //}
+                    }
+                }
+            });
+
+            $("#grid").kendoGrid({
+                dataSource: dataSource,
+                pageable: false,
+                height: 550,
+                //toolbar: ["create"],
+                scrollable: true,
+                filterable: true,
+                sortable: true,
+                filterMenuInit: function (e) {
+                    $(e.container).css("width", "200px")
+                },
+                columns: [
+                    { field: "StartDate", title: "Valid From", width: "200px", format: "{0:dd/MM/yyyy}", },
+                    { field: "EndDate", title: "Valid To", width: "200px", format: "{0:dd/MM/yyyy}", },
+                    { field: "Name", title: "Name", width: "300px", filterable: { multi: true, search: true } },
+                    { field: "MicrosoftId", title: "Microsoft Id", width: "300px", filterable: { multi: true, search: true, } },
+                    { field: "AgreementType", title: "Agreement Type", width: "200px", filterable: { multi: true, search: true } },
+                    { field: "PurchaseUnit", title: "Purchase Unit", width: "150px", filterable: { multi: true, search: true } },
+                    { field: "LicenseType", title: "License Type", width: "200px", filterable: { multi: true, search: true } },
+                    { field: "CustomerType", title: "Customer Type", width: "300px", filterable: { multi: true, search: true } },
+                    {
+                        field: "CustomerPrice", title: "ERP Price", format: "{0:c}", width: "150px", filterable: {
+                            extra: false,
+                            operators: {
+                                string: {
+                                    startswith: "Starts with",
+                                    eq: "Is equal to",
+                                    neq: "Is not equal to"
+                                }
+                            }
+                        },
+                    },
+                    {
+                        field: "CustomerPricePercentage", title: "ERP Profit %", width: "150px",
+                        template: '#=kendo.format("{0:p}", CustomerPricePercentage/100)#', filterable: {
+                            extra: false,
+                            operators: {
+                                string: {
+                                    startswith: "Starts with",
+                                    eq: "Is equal to",
+                                    neq: "Is not equal to"
+                                }
+                            }
+                        },
+                        // template: '#=kendo.format("{0:p}", (((CustomerPrice -ResellerPrice)  * 100) /ResellerPrice)/100)#',
+                    },
+                    {
+                        field: "ResellerPrice", title: "Buying Price", format: "{0:c}", width: "150px", filterable: {
+                            extra: false,
+                            operators: {
+                                string: {
+                                    startswith: "Starts with",
+                                    eq: "Is equal to",
+                                    neq: "Is not equal to"
+                                }
+                            }
+                        },
+                    },
+
+                    { command: ["edit"], title: "&nbsp;", width: "150px" },
+
+
+                ],
+                editable: "inline",
+                //save: function (e) {
+
+                //    $.ajax({
+                //        method: "POST",
+                //        url: window.location.origin + "/Reseller/Home/UpdatePrice",
+                //        data: { CustomerPrice: e.model.CustomerPrice, Id: e.model.Id }
+                //    })
+                //        .done(function (msg) {
+                //           // alert("Data Saved: " + msg);
+                //        });
+                //}
+            });
+
+        });
+
+        //$(document).on('keyup', 'input[aria-valuenow]', function () {
+
+        //    //Find the buying Price
+        //    var BuyingPrice = $(this).parent().parent().parent().prev().text().replace("$", ""); //$(this).closest("tr td:nth-child(4)").html();
+        //    console.log("Buying Price = " + BuyingPrice);
+        //    console.log("ERP Price = " + $(this).val())
+        //    //Find the total percetange
+        //    var per = (($(this).val() - BuyingPrice) * 100) / BuyingPrice;
+        //    console.log("Percentage = " + per);
+
+        //    if ($(this).parent().parent().parent('td[data-container-for="CustomerPrice"]').length) {  // it means Customer price
+        //        //Find the percentage field
+        //        var perField = $(this).parent().parent().parent().siblings().children().children().children("input[title]");
+        //        perField.val(per);
+        //        perField.prop('title', per);
+        //        perField.attr('aria-valuenow', per);
+        //        console.log(perField);
+        //        perField.siblings().attr('aria-valuenow', per);
+        //    }
+        //    else if ($(this).parent().parent().parent('td[data-container-for="CustomerPricePercentage"]').length) {  // it means Customer price percentage
+        //        // Find the
+        //    }
+
+
+
+        //    //console.log($(this).siblings("input[name='CustomerPrice']"));
+        //});
+
+        //function customBoolEditor(container, options) {
+        //    var guid = kendo.guid();
+        //    $('<input class="k-checkbox" id="' + guid + '" type="checkbox" name="Discontinued" data-type="boolean" data-bind="checked:Discontinued">').appendTo(container);
+        //    $('<label class="k-checkbox-label" for="' + guid + '">​</label>').appendTo(container);
+        //}
+    </script>
+
+</div>

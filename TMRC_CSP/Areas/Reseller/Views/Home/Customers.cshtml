@@ -1,0 +1,106 @@
+﻿@model TMRC_CSP.Models.Customers
+@{
+    ViewBag.Title = "Customers";
+    Layout = "~/Areas/Reseller/Views/Shared/_Layout.cshtml";
+}
+
+<link rel="stylesheet" href="https://kendo.cdn.telerik.com/2019.2.514/styles/kendo.common-material.min.css" />
+<link rel="stylesheet" href="https://kendo.cdn.telerik.com/2019.2.514/styles/kendo.material.min.css" />
+<link rel="stylesheet" href="https://kendo.cdn.telerik.com/2019.2.514/styles/kendo.material.mobile.min.css" />
+<script src="https://kendo.cdn.telerik.com/2019.2.514/js/jquery.min.js"></script>
+<script src="https://kendo.cdn.telerik.com/2019.2.514/js/kendo.all.min.js"></script>
+
+<h2>Customers</h2>
+
+<div id="example">
+    <div id="grid"></div>
+
+
+    <script>
+
+        $(document).ready(function () {
+            var crudServiceBaseUrl = window.location.origin; //"https://demos.telerik.com/kendo-ui/service",
+
+            dataSource = new kendo.data.DataSource({
+                transport: {
+                    read: {
+                        url: crudServiceBaseUrl + "/Reseller/Home/GetCustomers",
+                        dataType: "json",
+                        complete: function (jqXHR, textStatus) { console.log(textStatus, "read"); console.log(jqXHR) }
+                    },
+                    parameterMap: function (options, operation) {
+                        if (operation !== "read" && options.models) {
+                            return { models: kendo.stringify(options.models) };
+                        }
+                    }
+                },
+                batch: true,
+                pageSize: 20,
+
+                schema: {
+                    model: {
+                        id: "Id",
+                        fields: {
+                            Id: { from: "MicrosoftId", editable: false, nullable: true, visiblility: false },
+                            //TenantId: { from: "CompanyProfile.TenantId",editable: false, nullable: true },
+                            CompanyName: {
+                                from: "Company", editable: false, nullable: true
+                            },
+                            Domain: { from: "PrimaryDomain", editable: false, },
+                            ResellerId: { editable: false, visiblility: false },
+                            //RelationshipToPartner: { from: "RelationshipToPartner", editable: false },
+
+                        }
+                    }
+                }
+            });
+
+            $("#grid").kendoGrid({
+                dataSource: dataSource,
+                pageable: false,
+                filterable: true,
+                sortable: true,
+                filterMenuInit: function (e) {
+                    $(e.container).css("width", "200px")
+                },
+                height: 550,
+                toolbar: [{ name: "create", template: "<input type='submit' class='btn btn-info' value='Add new' onclick=\"location.href='@Url.Action("AddCustomer", "Home", new { Area = "Reseller" })'\" />" }],
+                columns: [
+                    //{ field: "Id", title: "Microsoft Id", width: "30px" },
+                  //  { field: "TenantId", title: "TenantId", width: "20px" },
+                    { field: "CompanyName", title: "Company Name", width: "30px", filterable: { multi: true, search: true } },
+                    { field: "Domain", title: "Domain", width: "30px", filterable: { multi: true, search: true } },
+                    {
+                        title: "ResellerId", title: "Relation",
+                        template: "# # Direct # #", width: "20px", filterable: false
+                    },
+                    //{
+                    //    title: "RelationshipToPartner", title: "RelationshipToPartner",
+                    //    template: "#if(RelationshipToPartner==1){# #: 'Reseller' # #}else{# #: '' # #}#", width: "20px"
+                    //},
+                    { template: "<a onclick=OpenPriceModel('#:Id#','#:CompanyName#','Reseller/Home') data-toggle='modal' data-target='\\#SubscriptionsModal' class='Users'>View Subscriptions</a> | <a href='/Reseller/Home/AddSubscriptions?Customerid=#:Id#'>Add Subscriptions</a>", title: "Users And License", width: "20px" },
+                    //{ template: "<a href='/Admin/AddSubscriptions/#:Id#'>Add Subscriptions</a> ", title: "Users And License", width: "20px" },
+                    //{ template: "<a href='/Admin/Users/#:Id#' class='Users'>User & License</a>", title: "Users And License" , width:"20px"},
+                    //{ command: ["edit"], title: "&nbsp;", width: "30px" }
+                ],
+                //editable: "inline",
+                //save: function (e) {
+
+                //    $.ajax({
+                //        method: "POST",
+                //        url: window.location.origin + "/Reseller/Home/UpdatePrice",
+                //        data: { CustomerPrice: e.model.CustomerPrice, Id: e.model.Id }
+                //    })
+                //        .done(function (msg) {
+                //           // alert("Data Saved: " + msg);
+                //        });
+                //}
+            });
+        });
+    </script>
+</div>
+
+<div class="modal fade" id="SubscriptionsModal" aria-labelledby="exampleModalLabel" data-backdrop="static" data-keyboard="false" role="dialog" aria-hidden="true">
+    @Html.Partial("_CustomerSubscriptions")
+</div>  
+

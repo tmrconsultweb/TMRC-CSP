@@ -1,0 +1,102 @@
+﻿@model int
+@Styles.Render("~/Content/stepsCSS")
+
+@{
+    string step1 = "disabled", step2 = "disabled", step3 = "disabled", step4 = "disabled", step5 = "disabled";
+    
+    string path = Request.RawUrl.Split('/')[1].Contains("Reseller") ? "/Reseller/Home": "/Admin";
+  
+
+
+    if (Model == 1)
+    {
+        step1 = "current";
+    }
+    else if (Model == 2)
+    {
+        step1 = "done";
+        step2 = "current";
+    }
+    else if (Model == 3)
+    {
+        step1 = "done";
+        step2 = "done";
+        step3 = "current";
+    }
+    else if (Model == 4)
+    {
+        step1 = "done";
+        step2 = "done";
+        step3 = "done";
+        step4 = "current";
+    }
+    //else if (Model == 5)
+    //{
+    //    step1 = "done";
+    //    step2 = "done";
+    //    step3 = "done";
+    //    step4 = "done";
+    //    step5 = "current";
+    //}
+}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            
+            <div class="card-body wizard-content">
+                @*<h2 class="card-title">Order</h2>*@
+                <form action="#" class="tab-wizard wizard-circle wizard clearfix" role="application" id="steps-uid-0">
+                    <div class="steps clearfix">
+                        <ul role="tablist">
+
+                            <li role="tab" class="first  @step1" aria-disabled="false" aria-selected="true">
+                                <a id="steps-uid-0-t-0" href="@path/SelectCustomers" aria-controls="steps-uid-0-p-0">
+                                    <span class="current-info audible">current step: </span>
+                                    <span class="step">1</span> Customers
+                                </a>
+                            </li>
+                            <li role="tab" class="@step2" aria-disabled="true">
+                                <a id="steps-uid-0-t-2" href="@path/PickMicrosoftOffers" aria-controls="steps-uid-0-p-2">
+                                    <span class="step">2</span> Products
+                                </a>
+                            </li>
+                            <li role="tab" class="@step3" aria-disabled="true">
+                                <a id="steps-uid-0-t-1" href="@path/Cart" aria-controls="steps-uid-0-p-1">
+                                    <span class="step">3</span> Cart
+                                </a>
+                            </li>
+                            
+                            <li role="tab" class="@step4 last" aria-disabled="true">
+                                <a id="steps-uid-0-t-3" href="@path/Confirmation" aria-controls="steps-uid-0-p-3">
+                                    <span class="step">4</span> Invoice/Confirmation
+                                </a>
+                            </li>
+                            @*<li role="tab" class="@step5 " aria-disabled="true">
+                                <a id="steps-uid-0-t-4" href="#steps-uid-0-h-4" aria-controls="steps-uid-0-p-4">
+                                    <span class="step">5</span> Confirmation
+                                </a>
+                            </li>*@
+                        </ul>
+                    </div>
+                    <div class="content clearfix">
+                        <!-- Step 1 -->
+                        <h6 id="steps-uid-0-h-0" tabindex="-1" class="title current">Customers</h6>
+                        <!-- Step 2 -->
+                        <h6 id="steps-uid-0-h-1" tabindex="-1" class="title">Products</h6>
+                        <!-- Step 3 -->
+                        <h6 id="steps-uid-0-h-2" tabindex="-1" class="title">Cart</h6>
+                        <!-- Step 4 -->
+                        <h6 id="steps-uid-0-h-3" tabindex="-1" class="title">Discount</h6>
+                    </div>
+                    @*<div class="actions clearfix">
+                        <ul role="menu" aria-label="Pagination">
+                            <li class="disabled" aria-disabled="true"><a href="#previous" role="menuitem">Previous</a></li>
+                            <li aria-hidden="false" aria-disabled="false"><a href="#next" role="menuitem">Next</a></li>
+                            <li aria-hidden="true" style="display: none;"><a href="#finish" role="menuitem">Submit</a></li>
+                        </ul>
+                    </div>*@
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

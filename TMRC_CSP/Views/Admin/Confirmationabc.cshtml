@@ -1,0 +1,30 @@
+﻿@model TMRC_CSP.Models.PartnerAndMicrosoftAndSubscriptionRepo
+@{
+    ViewBag.Title = "Confirmation";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<h2>Confirmation</h2>
+
+<h3>Personal Information</h3>
+@{
+    var _res = (TMRC_CSP.Models.ResellerRequest)Session["_resellerRequest"];
+
+    @Html.ActionLink("Edit", "", "Admin", new { Id = _res.Id }, null)
+    <p>Name = <b> @_res.FirstName, @_res.LastName  </b></p>
+    <p>Country = @_res.Country</p>
+    <p>City = @_res.City</p>
+    <p>Company = @_res.Company</p>
+    <p>Email = @_res.Email</p>
+    <p>PhoneNumber = @_res.PhoneNumber</p>
+    <p>PrimaryDomain = @_res.PrimaryDomain</p>
+}
+
+<h3>Offers Information</h3>
+@for (int i = 0; i < Model.PartnerAndMicrosoftRepository.Count(); i++)
+{
+    <h4>@Model.PartnerAndMicrosoftRepository[i].OffersSetup.Title</h4>
+    <p>License = @Model.Subscriptions[i].Licenses</p>
+}
+
+@Html.ActionLink("Confirm", "Confirmation", "Admin")

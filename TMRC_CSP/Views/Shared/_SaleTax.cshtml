@@ -1,0 +1,69 @@
+﻿
+@model TMRC_CSP.Models.SaleTax
+
+@using (Html.BeginForm())
+            {
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="SubscriptionsModalLabel">Sale Tax</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                @Html.AntiForgeryToken()
+
+                <div class="form-horizontal">
+                    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                    @Html.HiddenFor(model => model.Id)
+
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.Country, htmlAttributes: new { @class = "control-label col-md-2" })
+                        <div class="col-md-10">
+                            @Html.DropDownListFor(m => m.Country, new SelectList(ViewBag.Countries, "Code", "CountryName"), "Select Country", new { @class = "form-control" })
+                            @Html.ValidationMessageFor(model => model.Country, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.State, htmlAttributes: new { @class = "control-label col-md-2" })
+                        <div class="col-md-10">
+                            @Html.EditorFor(model => model.State, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.State, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.Amount, htmlAttributes: new { @class = "control-label col-md-2" })
+                        <div class="col-md-10">
+                            
+                            
+                            <div class="input-group">
+                                <span class="input-group-addon">%</span>
+                                @Html.EditorFor(model => model.Amount, new { htmlAttributes = new { @class = "form-control", min = "0", max = "100" } })
+                                @Html.ValidationMessageFor(model => model.Amount, "", new { @class = "text-danger" })
+                                @*<input type="text" class="form-control" aria-label="Amount (to the nearest dollar)">*@
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+            <div class="modal-footer">
+                <input type="submit" value="Save" class="btn btn-default" />
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+}
+
+<script>
+    $('#Amount').bind('keyup paste', function () {
+        this.value = this.value.replace(/[^0-9]/g, '');
+    }).keyup(function () {
+        if (Number($(this).val()) > Number($(this).attr('max'))) {
+            $(this).val($(this).attr('max'))
+        }
+    });
+</script>

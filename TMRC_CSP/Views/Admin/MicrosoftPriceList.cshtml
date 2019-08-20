@@ -1,0 +1,249 @@
+﻿@{
+    ViewBag.Title = "Microsoft Price List";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+<style>
+    html {
+        font-size: 14px;
+        font-family: Arial, Helvetica, sans-serif;
+    }
+</style>
+<link rel="stylesheet" href="https://kendo.cdn.telerik.com/2019.2.514/styles/kendo.common-material.min.css" />
+<link rel="stylesheet" href="https://kendo.cdn.telerik.com/2019.2.514/styles/kendo.material.min.css" />
+<link rel="stylesheet" href="https://kendo.cdn.telerik.com/2019.2.514/styles/kendo.material.mobile.min.css" />
+
+
+<script src="https://kendo.cdn.telerik.com/2019.2.514/js/jquery.min.js"></script>
+<script src="https://kendo.cdn.telerik.com/2019.2.514/js/kendo.all.min.js"></script>
+
+<h2>Microsoft Price List</h2>
+
+<div class="row">
+    <div class="col-lg-12 text-right">
+        @Html.ActionLink("Import Price List", "ImportPriceList", "Admin")
+    </div>
+</div>
+<div id="example">
+    <div id="grid"></div>
+
+
+    <script>
+        function FindDefaultPercentage(ResellerPer, CustomerPer) {
+
+            return (((CustomerPer - ResellerPer) * 100) / CustomerPer);
+        }
+
+        $(document).ready(function () {
+
+
+            var crudServiceBaseUrl = window.location.origin; //"https://demos.telerik.com/kendo-ui/service",
+
+            dataSource = new kendo.data.DataSource({
+                transport: {
+                    read: {
+                        url: crudServiceBaseUrl + "/Admin/GetPriceList",
+                        dataType: "json"
+                    },
+                    update: {
+                        url: crudServiceBaseUrl + "/Admin/UpdatePrice",
+                        dataType: "json",
+                    },
+                    parameterMap: function (options, operation) {
+                        if (operation !== "read" && options.models) {
+                            return { models: kendo.stringify(options.models) };
+                        }
+                    }
+                },
+                batch: true,
+               // pageSize: 20,
+
+                schema: {
+                    model: {
+                        id: "Id",
+                        fields: {
+                            Id: { editable: false, nullable: true },
+                            MicrosoftId: { type: "string", editable: false, },
+                            Name: { type: "string", editable: false },
+                            PurchaseUnit: { type: "string", editable: false },
+                            AgreementType: { type: "string", editable: false },
+                            CustomerType: { type: "string", editable: false },
+                            LicenseType: { type: "string", editable: false },
+                            StartDate: { type: "date", editable: false },
+                            EndDate: { type: "date", editable: false, },
+                            Price: { type: "number", editable: false },
+                            ResellerPrice: { type: "number", validation: { required: true, min: 1 } },
+                            ResellerPricePercentage: { type: "number", editable: true },
+                            CustomerPrice: { type: "number", editable: true, validation: { required: false, min: 1 } },
+                            CustomerPricePercentage: { type: "number", editable: true },
+                            DefaultMarginReseller: { type: "number", editable: true }
+                        }
+                    }
+                },
+                change: function (e) {
+
+                    if (e.action === "itemchange" && (e.field == "CustomerPrice" || e.field == "CustomerPricePercentage" || e.field == "ResellerPrice" || e.field == "ResellerPricePercentage" || e.field == "DefaultMarginReseller")) {
+
+                        var model = e.items[0],
+                            Price = model.Price,
+                            ResellerPrice = model.ResellerPrice,
+                            ResellerPricePercentage = model.ResellerPricePercentage,
+                            CustomerPrice = model.CustomerPrice,
+                            CustomerPricePercentage = model.CustomerPricePercentage,
+                            Id = e.items[0].Id,
+                            DefaultMarginReseller = model.DefaultMarginReseller,
+                            grid = $("#grid").data("kendoGrid");
+                        var dataItem = grid.dataSource.get(Id);
+
+                        if (e.field == "CustomerPrice") {
+                            var per = (((CustomerPrice - Price) * 100) / Price).toFixed(2);
+                            dataItem.set("CustomerPricePercentage", per);
+
+                            // model.CustomerPricePercentage = 10;
+                        }
+                        else if (e.field == "CustomerPricePercentage") {
+                            var CusValue = (((CustomerPricePercentage * Price) / 100) + Price).toFixed(2);
+                            dataItem.set("CustomerPrice", CusValue);
+                        }
+                        else if (e.field == "ResellerPrice") {
+                            var per = (((ResellerPrice - Price) * 100) / Price).toFixed(2);
+                            dataItem.set("ResellerPricePercentage", per);
+                            dataItem.set("DefaultMarginReseller", FindDefaultPercentage(per, CustomerPricePercentage));
+                        }
+                        else if (e.field == "ResellerPricePercentage") {
+                            var CusValue = (((ResellerPricePercentage * Price) / 100) + Price).toFixed(2);
+                            dataItem.set("ResellerPrice", CusValue);
+                            dataItem.set("DefaultMarginReseller", FindDefaultPercentage(ResellerPricePercentage, CustomerPricePercentage));
+                        }
+                        else if (e.field == "DefaultMarginReseller") {
+
+                            //var resellerPrice = (((ResellerPricePercentage * Price) / 100) + Price).toFixed(2);
+                            //dataItem.set("ResellerPrice", resellerPrice);
+                            var DefValue = (CustomerPricePercentage - ((DefaultMarginReseller * CustomerPricePercentage) / 100)).toFixed(2);
+                            dataItem.set("ResellerPricePercentage", DefValue);
+                        }
+                    }
+                }
+            });
+
+            $("#grid").kendoGrid({
+                dataSource: dataSource,
+                pageable: false,
+                height: 550,
+                scrollable: true,
+                filterable: true,
+                sortable: true,
+                filterMenuInit: function (e) {
+                    $(e.container).css("width", "200px")
+                },
+                columns: [
+                    { field: "StartDate", title: "Valid From", width: "200px", format: "{0:dd/MM/yyyy}", },
+                    { field: "EndDate", title: "Valid To", width: "200px", format: "{0:dd/MM/yyyy}", },
+                    { field: "Name", title: "Name", width: "300px", filterable: { multi: true, search: true } },
+                    { field: "MicrosoftId", title: "Microsoft Id", width: "300px", filterable: { multi: true, search: true, } },
+                    { field: "AgreementType", title: "Agreement Type", width: "200px", filterable: { multi: true, search: true } },
+                    { field: "PurchaseUnit", title: "Purchase Unit", width: "150px", filterable: { multi: true, search: true } },
+                    { field: "LicenseType", title: "License Type", width: "200px", filterable: { multi: true, search: true } },
+                    { field: "CustomerType", title: "Customer Type", width: "300px", filterable: { multi: true, search: true } },
+                    {
+                        field: "Price", title: "Buying Price", format: "{0:c}", width: "150px", filterable: {
+                            extra: false,
+                            operators: {
+                                string: {
+                                    startswith: "Starts with",
+                                    eq: "Is equal to",
+                                    neq: "Is not equal to"
+                                }
+                            }
+                        }, },
+                    {
+                        field: "CustomerPrice", title: "ERP Price", format: "{0:c}", width: "150px", filterable: {
+                            extra: false,
+                            operators: {
+                                string: {
+                                    startswith: "Starts with",
+                                    eq: "Is equal to",
+                                    neq: "Is not equal to"
+                                }
+                            }
+                        },
+                    },
+                    {
+                        field: "CustomerPricePercentage", title: "ERP Profit %", width: "150px",
+                        template: '#=kendo.format("{0:p}", CustomerPricePercentage/100)#', filterable: {
+                            extra: false,
+                            operators: {
+                                string: {
+                                    startswith: "Starts with",
+                                    eq: "Is equal to",
+                                    neq: "Is not equal to"
+                                }
+                            }
+                        },
+                        // template: '#=kendo.format("{0:p}", (((CustomerPrice -ResellerPrice)  * 100) /ResellerPrice)/100)#',
+                    },
+                    {
+                        field: "DefaultMarginReseller", title: "Profit Share", width: "150px",
+                        template: '#=kendo.format("{0:p}", DefaultMarginReseller/100)#', filterable: {
+                            extra: false,
+                            operators: {
+                                string: {
+                                    startswith: "Starts with",
+                                    eq: "Is equal to",
+                                    neq: "Is not equal to"
+                                }
+                            }
+                        },
+                    },
+                    {
+                        field: "ResellerPrice", title: "Reseller Price", format: "{0:c}", width: "150px", filterable: {
+                            extra: false,
+                            operators: {
+                                string: {
+                                    startswith: "Starts with",
+                                    eq: "Is equal to",
+                                    neq: "Is not equal to"
+                                }
+                            }
+                        }, },
+                    {
+                        field: "ResellerPricePercentage", title: "Reseller Profit %", width: "150px",
+                        template: '#=kendo.format("{0:p}", ResellerPricePercentage/100)#', filterable: {
+                            extra: false,
+                            operators: {
+                                string: {
+                                    startswith: "Starts with",
+                                    eq: "Is equal to",
+                                    neq: "Is not equal to"
+                                }
+                            }
+                        },
+                    },
+                    { command: ["edit"], title: "&nbsp;", width: "150px" },
+                    
+                    //{ field: "MicrosoftId", title: "Microsoft Id", width: "300px" },
+                    //{ title: "Date", template: "#= 'Valid From '+ kendo.format('{0:dd/MM/yyyy}', StartDate) + ' Valid To ' + kendo.format('{0:dd/MM/yyyy}', EndDate) #", width: "200px" },
+                ],
+                editable: "inline",
+                //save: function (e) {
+
+                //    $.ajax({
+                //        method: "POST",
+                //        url: window.location.origin + "/Reseller/Home/UpdatePrice",
+                //        data: { CustomerPrice: e.model.CustomerPrice, Id: e.model.Id }
+                //    })
+                //        .done(function (msg) {
+                //           // alert("Data Saved: " + msg);
+                //        });
+                //}
+            });
+
+
+        });
+
+
+    </script>
+
+</div>
+
+
+

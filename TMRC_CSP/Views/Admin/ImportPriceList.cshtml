@@ -1,0 +1,79 @@
+﻿@using TMRC_CSP.Models;
+
+@{
+    ViewBag.Title = "ImportPriceList";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<h2>Import Price List</h2>
+<hr />
+@using (Html.BeginForm("ImportPriceList", "Admin", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+    <table>
+        <tr>
+            <td>Select File : </td>
+            <td>
+                <input type="file" name="UploadedFile" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Import Data :
+            </td>
+            <td>
+                <input type="submit" name="Import" value="Import from Excel" />
+            </td>
+        </tr>
+    </table>
+}
+
+<div class="row">
+    <div class="col-lg-12 text-right">
+        @Html.ActionLink("Download Sample", "DownloadPriceList", "Admin")
+    </div>
+</div>
+
+
+
+@{var list = ViewBag.MicrosoftPriceList; }
+<table id="tbl" class="table color-table muted-table">
+    <tr>
+        <th>Offer Id</th>
+        <th>Valid From Date</th>
+        <th>Valid To Date</th>
+        <th>License Agreement Type</th>
+        <th>Secondary License Type</th>
+        <th>End Customer Type</th>
+        <th>Purchase Unit</th>
+        <th>Price</th>
+        <th>ERP Price</th>
+        <th>Reseller Price</th>
+
+    </tr>
+    @foreach (var l in list)
+    {
+        string lin = TMRC_CSP.Models.LicenseTypes.ParseEnumToString<TMRC_CSP.Models.LicenseType>(Convert.ToInt16(l.LicenseType));
+        string agr = TMRC_CSP.Models.AgreementTypes.ParseEnumToString<TMRC_CSP.Models.AgreementType>(Convert.ToInt16(l.AgreementType));
+        string cus = TMRC_CSP.Models.CustomerTypes.ParseEnumToString<TMRC_CSP.Models.CustomerType>(Convert.ToInt16(l.CustomerType));
+        string unit = TMRC_CSP.Models.PurchaseUnits.ParseEnumToString<TMRC_CSP.Models.PurchaseUnit>(Convert.ToInt16(l.PurchaseUnit));
+        // TMRC_CSP.Models.LicenseTypes licenseType = new LicenseTypes();
+
+        <tr>
+            <td>@l.MicrosoftId</td>
+            <td>@l.StartDate.ToString().Split(' ')[0]</td>
+            <td>@l.EndDate.ToString().Split(' ')[0] </td>
+            <td>@agr</td>
+            <td>@lin</td>
+            <td>@cus</td>
+            <td>@l.PurchaseUnitNumber @unit</td>
+            <td>@l.Price</td>
+            <td>@l.CustomerPrice</td>
+            <td>@l.ResellerPrice</td>
+        </tr>
+    }
+</table>
+
+@if (list.ToString() != "")
+{
+    @Html.ActionLink("Save", "SaveMicrosoftPrice", "Admin")
+}

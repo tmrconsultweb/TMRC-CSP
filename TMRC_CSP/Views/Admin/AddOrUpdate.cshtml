@@ -1,0 +1,56 @@
+﻿@model TMRC_CSP.Models.OffersSetupRepository
+@{
+    ViewBag.Title = "Add Or Update";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<h2>Add Or Update</h2>
+
+<p>@Model.MicrosoftOffer.Offer.Name (@Model.MicrosoftOffer.Offer.Id)</p>
+<p>@Model.MicrosoftOffer.Offer.Description</p>
+
+<hr />
+
+@using (Html.BeginForm("AddOrUpdate", "Admin", FormMethod.Post))
+{
+    <table>
+        <tr>
+            <th colspan="2">
+                Offers Setup
+                @Html.HiddenFor(m => m.OffersSetup.MicrosoftOfferId)
+            </th>
+
+        </tr>
+        <tr>
+            <td>
+                <label>Offer Name</label>
+                @Html.TextBoxFor(m => m.OffersSetup.Title)
+            </td>
+            <td>
+                <label>Offer SubTitle</label>
+                @Html.TextBoxFor(m => m.OffersSetup.SubTitle)
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label>Annual Price</label>
+                @Html.TextBoxFor(m => m.OffersSetup.Price)
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label>Summary</label>
+                @Html.TextBoxFor(m => m.OffersSetup.Summary)
+            </td>
+            <td>
+                <label>Features</label>
+                @Html.TextBoxFor(m => m.OffersSetup.Features)
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <input type="submit" value="Add" />
+            </td>
+        </tr>
+    </table>
+}

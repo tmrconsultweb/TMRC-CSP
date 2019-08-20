@@ -1,0 +1,12 @@
+﻿@model TMRC_CSP.Models.Company
+
+@{
+    ViewBag.Title = "Company Setting";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+@using (Html.BeginForm("Company", "Admin", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+    @Html.Partial("_Company", Model)
+
+}

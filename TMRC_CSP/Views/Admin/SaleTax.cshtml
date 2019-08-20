@@ -1,0 +1,102 @@
+﻿@model TMRC_CSP.Models.SaleTax
+
+@{
+    ViewBag.Title = "Sale Tax";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+<link rel="stylesheet" href="https://kendo.cdn.telerik.com/2019.2.514/styles/kendo.common-material.min.css" />
+<link rel="stylesheet" href="https://kendo.cdn.telerik.com/2019.2.514/styles/kendo.material.min.css" />
+<link rel="stylesheet" href="https://kendo.cdn.telerik.com/2019.2.514/styles/kendo.material.mobile.min.css" />
+
+
+<script src="https://kendo.cdn.telerik.com/2019.2.514/js/jquery.min.js"></script>
+<script src="https://kendo.cdn.telerik.com/2019.2.514/js/kendo.all.min.js"></script>
+
+<div class="row">
+    <div class="col-lg-12 text-right">
+        @Html.ActionLink("Import Price List", "ImportPriceList", "Admin")
+    </div>
+</div>
+<div id="example">
+    <div id="grid"></div>
+
+
+    <script>
+
+        $(document).ready(function () {
+            var crudServiceBaseUrl = window.location.origin;
+
+            dataSource = new kendo.data.DataSource({
+                transport: {
+                    read: {
+                        url: crudServiceBaseUrl + "/Admin/GetSaleTax",
+                        dataType: "json"
+                    },
+                    update: {
+                        url: crudServiceBaseUrl + "/Admin/UpdateSaleTax",
+                        dataType: "json",
+                    },
+                    parameterMap: function (options, operation) {
+                        if (operation !== "read" && options.models) {
+                            return { models: kendo.stringify(options.models) };
+                        }
+                    }
+                },
+                batch: true,
+                // pageSize: 20,
+
+                schema: {
+                    model: {
+                        id: "Id",
+                        fields: {
+                            Id: { editable: false, nullable: true },
+                            ResellerId: { type: "int", editable: false, },
+                            Amount: { type: "string", editable: false },
+                            Country: { type: "string", editable: false },
+                            State: { type: "string", editable: false },
+                        }
+                    }
+                }
+            });
+
+            $("#grid").kendoGrid({
+                dataSource: dataSource,
+                pageable: false,
+                height: 550,
+                scrollable: true,
+                filterable: true,
+                sortable: true,
+                filterMenuInit: function (e) {
+                    $(e.container).css("width", "200px")
+                },
+                columns: [
+                    { field: "Country", title: "Country", width: "200px", filterable: { multi: true, search: true } },
+                    { field: "State", title: "State", width: "200px", filterable: { multi: true, search: true } },
+                    { field: "Amount", title: "Amount", width: "200px", filterable: { multi: true, search: true } },
+                    { template: "<a onclick=OpenSaleTaxModel('#:SaleTaxId#','#:CountryCode#','#:State#','#:Amount#') data-toggle='modal' data-target='\\#SaleTaxModal' class='Users'>Edit</a>", title: "Action", width: "200px" },
+                    //{ command: ["edit"], title: "&nbsp;", width: "150px" },
+
+                ],
+                editable: "inline",
+            });
+        });
+        function OpenSaleTaxModel(id, country, state, Amount) {
+            $("#Country").val(country);
+            $("#State").val(state);
+            $("#Id").val(id);
+            $("#Amount").val(Amount);
+        }
+    </script>
+
+</div>
+
+@if (ViewBag.msg != null)
+{
+    <div class="alert alert-danger">
+        @ViewBag.msg
+    </div>
+}
+
+<div class="modal fade" id="SaleTaxModal" aria-labelledby="SaleTaxModalLabel" data-backdrop="static" data-keyboard="false" role="dialog" aria-hidden="true">
+    @Html.Partial("_SaleTax", Model)
+</div>  

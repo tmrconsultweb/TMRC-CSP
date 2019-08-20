@@ -1,0 +1,85 @@
+﻿@model TMRC_CSP.Models.PartnerAndMicrosoftAndSubscriptionRepo
+@{
+    ViewBag.Title = "Offers";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+
+<script>
+    function DisplayLicense(e) {
+        //ev.preventDefault();
+        $(e).siblings(".LicensesTab").css('display', 'block');
+    } 
+    function ChangeAmount(e) {
+        $(".TotalPrice").text($(e).siblings("input[type='hidden']").val() * $(e).val());
+        //console.log($(e).parent(".LicensesTab"));
+        //console.log($(e).parent(".LicensesTab").parent('div'));
+        //console.log($(e).parent(".LicensesTab").siblings("input[type='hidden']:last-child").val());
+        //console.log($(e).parent(".LicensesTab").parent("div input[type='hidden']:last-child").val());
+    }
+</script>
+<h2>Offers</h2>
+
+@using (Html.BeginForm("SelectedSubscriptions", "Admin", FormMethod.Post))
+{
+    for (int i = 0; i < Model.PartnerAndMicrosoftRepository.Count(); i++)
+    {
+        <div>
+            @Html.CheckBoxFor(m => m.PartnerAndMicrosoftRepository[i].MicrosoftOffer.IsAccept, new { onclick = "DisplayLicense(this)" })
+            <h1>  @Html.DisplayFor(m => m.PartnerAndMicrosoftRepository[i].OffersSetup.Title)</h1>
+            <b><i><u>Price = @Html.DisplayFor(m => m.PartnerAndMicrosoftRepository[i].OffersSetup.Price)</u></i></b>
+            <p><b>Summary =</b> @Html.DisplayFor(m => m.PartnerAndMicrosoftRepository[i].OffersSetup.Summary) <b> Features =</b> @Html.DisplayFor(m => m.PartnerAndMicrosoftRepository[i].OffersSetup.Features) </p>
+            @Html.HiddenFor(m => m.PartnerAndMicrosoftRepository[i].OffersSetup.Title)
+            @Html.HiddenFor(m => m.PartnerAndMicrosoftRepository[i].OffersSetup.Price)
+
+            @Html.HiddenFor(m=>m.Subscriptions[i].MicrosoftOfferId, new { value=""+ Model.PartnerAndMicrosoftRepository[i].OffersSetup.MicrosoftOfferId +"" })
+            @Html.HiddenFor(m => m.PartnerAndMicrosoftRepository[i].OffersSetup.MicrosoftOfferId)
+            @Html.HiddenFor(m => m.PartnerAndMicrosoftRepository[i].OffersSetup.Id)
+            
+
+            <div class="LicensesTab" style="display:none">
+                @Html.TextBoxFor(m=>m.Subscriptions[i].Licenses,new { value="1", min="1",max="10000", onkeyup = "ChangeAmount(this)", type="number" })
+                @*<input type="number" value="1" min="1" max="10000" onchange="ChangeAmount(this)" />*@
+                @Html.HiddenFor(m => m.PartnerAndMicrosoftRepository[i].OffersSetup.Price)
+                <label>Total</label> 
+                <label class="TotalPrice">@Model.PartnerAndMicrosoftRepository[i].OffersSetup.Price</label>
+            </div>
+        </div>
+        <hr />
+        @*<b>
+                @Html.CheckBoxFor(m => i.IsAccept)
+                <input id="Offers@(i.Offer.Id)" type="checkbox" name="SelectedAddressIDs" value="@i" /> Id =  @i.Offer.Id
+            </b>
+            <p>Attributes = @i.Offer.Attributes</p>
+            <p>Billing = @i.Offer.Billing</p>
+            <p>Category = @i.Offer.Category</p>
+            <p>Country = @i.Offer.Country</p>
+            <p>Description = @i.Offer.Description</p>
+            <p>HasAddOns = @i.Offer.HasAddOns</p>
+            <p>IsAddOn = @i.Offer.IsAddOn</p>
+            <p>IsAutoRenewable = @i.Offer.IsAutoRenewable</p>
+            <p>IsAvailableForPurchase = @i.Offer.IsAvailableForPurchase</p>
+            <p>IsTrial = @i.Offer.IsTrial</p>
+            <p>Limit = @i.Offer.Limit</p>
+            <p>LimitUnitOfMeasure = @i.Offer.LimitUnitOfMeasure</p>
+            <p>Links = @i.Offer.Links</p>
+            <p>Locale = @i.Offer.Locale</p>
+            <p>MaximumQuantity = @i.Offer.MaximumQuantity</p>
+            <p>MinimumQuantity = @i.Offer.MinimumQuantity</p>
+            <p>Name = @i.Offer.Name</p>
+            <p>PrerequisiteOffers = @i.Offer.PrerequisiteOffers</p>
+            <p>Product = @i.Offer.Product</p>
+            <p>Rank = @i.Offer.Rank</p>
+            <p>ReselleeQualifications = @i.Offer.ReselleeQualifications</p>
+            <p>ResellerQualifications = @i.Offer.ResellerQualifications</p>
+            <p>SalesGroupId = @i.Offer.SalesGroupId</p>
+            <p>SupportedBillingCycles = @i.Offer.SupportedBillingCycles</p>
+            <p>UnitType = @i.Offer.UnitType</p>
+            <p>UpgradeTargetOffers = @i.Offer.UpgradeTargetOffers</p>
+            <p>Uri = @i.Offer.Uri</p>
+            <hr />*@
+    }
+
+    <input type="submit" value="Next: Confirmation" />
+}
+

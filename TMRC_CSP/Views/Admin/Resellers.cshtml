@@ -1,0 +1,184 @@
+﻿@model IEnumerable<TMRC_CSP.Models.Reseller>
+
+
+
+@Styles.Render("~/Content/sweetAlert")
+@{
+    ViewBag.Title = "Resellers";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<p>
+    @Html.ActionLink("Create New Agent", "CreateReseller","Admin")
+</p>
+
+<table class="table color-table muted-table">
+    <tr>
+        <th></th>
+        <th>
+            @Html.DisplayNameFor(model => model.FirstName)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.LastName)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Address)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.PhoneNumber)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Email)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Country)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.City)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.ZipCode)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Status)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Margin)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.CreatedDate)
+        </th>
+        <th>Action</th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                <img src="https://image.flaticon.com/icons/png/128/32/32195.png" width="15px" onclick="Show(this)" />
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.FirstName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.LastName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Address)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.PhoneNumber)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Email)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Country)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.City)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ZipCode)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Status)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Margin)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CreatedDate)
+            </td>
+            <td>
+                @Html.ActionLink("Edit", "CreateReseller", new { id = item.Id }) |
+                @*@Html.ActionLink("Details", "Details", new { id=item.Id }) |*@
+                @if (item.Status == true)
+                {
+                    <a onclick="IsDeleteConfirm('@item.Id',true,this)">Delete</a>
+                }
+                else
+                {
+                    <a onclick="IsDeleteConfirm('@item.Id',false,this)">Activate</a>
+                }
+
+
+                @*@Html.ActionLink("Delete", "DeleteReseller", new { id = item.Id }, new {  })*@
+            </td>
+        </tr>
+        <tr class="detailRow" style="display:none">
+            <td colspan="6">
+                <a onclick="OpenPriceModel('@item.Id','@item.FirstName' + ' @item.LastName')" data-toggle="modal" data-target="#ResellerPriceModal">View Price list</a>
+            </td>
+            <td colspan="6">
+                <a onclick="OpenModel('@item.Id','@item.FirstName' + ' @item.LastName')" data-toggle="modal" data-target="#CustomerModal">View Customers</a>
+            </td>
+        </tr>
+    }
+
+</table>
+@Scripts.Render("~/Script/sweetAlert")
+<script>
+    function IsDeleteConfirm(Id, IsDelete, e) {
+        swal({
+            title: "Are you sure?",
+            text: IsDelete ? "You want to Inactive that agent!" : "You want to activate that agent!",
+            type: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#DD6B55",
+            confirmButtonText: IsDelete ? "Yes, delete it!" : "Yes, Activate it!",
+            cancelButtonText: "No, cancel plx!",
+            closeOnConfirm: false,
+            closeOnClickOutside: false,
+            closeOnCancel: false
+        }, function (isConfirm) {
+            if (isConfirm) {
+                $.ajax({
+                    url: "/Admin/DeleteReseller",
+                    data: { 'id': Id, 'IsDelete': IsDelete },
+                    success: function (result) {
+                        if (result == "Deleted") {
+                            $(e).parent().parent('tr').find('td:nth-child(10) input[type="checkbox"]').prop("checked", false);
+                            $(e).parent().append("<a onclick='IsDeleteConfirm(" + Id + ", false, this)'>Activate</a>");
+                            $(e).remove();
+                            swal("Deleted!", "Successfully agent has been deleted.", "success");
+                        }
+
+                        else if (result == "Activate") {
+                            $(e).parent().parent('tr').find('td:nth-child(10) input[type="checkbox"]').prop("checked", true);
+                            $(e).parent().append("<a onclick='IsDeleteConfirm(" + Id + ", true, this)'>Delete</a>");
+                            $(e).remove();
+                            swal("Activate!", "Successfully agent has been activated.", "success");
+                        }
+
+                        else
+                            swal("Error", result, "error");
+
+                    }, error: function (xyz) {
+                        swal("Error", xyz, "error");
+                    }
+                });
+
+            } else {
+                swal("Cancelled", "Your agent is safe :)", "error");
+            }
+        });
+        return false;
+    }
+
+    function Show(e) {
+        $(e).parent().parent('tr').next().toggle("slow");
+        //.siblings("tr.detailRow")
+    }
+
+    
+</script>
+
+<form>
+    <div class="modal fade" id="CustomerModal" aria-labelledby="exampleModalLabel" data-backdrop="static" data-keyboard="false" role="dialog" aria-hidden="true">
+        @Html.Partial("_ResellerCustomers")
+    </div>
+    <div class="modal fade" id="ResellerPriceModal" data-backdrop="static" data-keyboard="false" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        @Html.Partial("_ResellerPricelist")
+    </div>
+</form>

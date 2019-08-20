@@ -1,0 +1,120 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title</title>
+    @*@Styles.Render("~/Content/css")
+        @Scripts.Render("~/bundles/modernizr")*@
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+
+    @Scripts.Render("~/bundles/jquerys")
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+    @Styles.Render("~/Content/MyCss")
+    <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+</head>
+<body>
+
+    <div id="wrapper" class="toggled">
+        <div class="overlay"></div>
+
+        <!-- Sidebar -->
+        <nav class="navbar navbar-inverse navbar-fixed-top" id="sidebar-wrapper" role="navigation">
+            <ul class="nav sidebar-nav">
+                <li class="sidebar-brand">
+                    <a href="#">
+                        TMRC
+                    </a>
+                </li>       
+                <li>@Html.ActionLink("Dashboard", "Index", "Home", new { area = "Reseller" },null)</li>
+                <li>@Html.ActionLink("Profile", "Profile", "Home")</li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">Setting <span class="caret"></span></a>
+                    <ul class="dropdown-menu" role="menu">
+                        <li class="dropdown-header">CSP Setting</li>
+                        <li> @Html.ActionLink("Company Setting", "Company", "Home") </li>
+                        <li> @Html.ActionLink("Terms & Conditions", "TermsAndConditions", "Home") </li>
+                        <li>@Html.ActionLink("Default Margin", "DefaultMarginUser", "Home")</li>
+                        <li> @Html.ActionLink("Price list", "OffersPriceList", "Home")  </li>
+                        <li> @Html.ActionLink("Sale Tax", "SaleTax", "Home")  </li>
+                    </ul>
+                </li>
+                <li> @Html.ActionLink("Customers", "Customers", "Home") </li>
+                <li> @Html.ActionLink("Order Now", "SelectCustomers", "Home") </li>
+                <li>@Html.ActionLink("SignOut", "SignOut", "Account")</li>
+            </ul>
+        </nav>
+        <!-- /#sidebar-wrapper -->
+        <!-- Page Content -->
+        <div id="page-content-wrapper">
+            <button type="button" class="hamburger is-open" data-toggle="offcanvas">
+                <span class="hamb-top"></span>
+                <span class="hamb-middle"></span>
+                <span class="hamb-bottom"></span>
+            </button>
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-11">
+                        @RenderBody()
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /#page-content-wrapper -->
+    </div>
+
+    @*<div class="navbar navbar-inverse navbar-fixed-top">
+            <div class="container">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    @Html.ActionLink("Reseller", "Index", "Home", new { area = "Reseller" }, new { @class = "navbar-brand" })
+                </div>
+                <div class="navbar-collapse collapse">
+                    <ul class="nav navbar-nav">
+                        <li>@Html.ActionLink("Profile", "Profile", "Home")</li>
+                        <li class="dropdown">
+                            <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                                Products
+                                <span class="caret"></span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li> @Html.ActionLink("CSP Offers", "OffersPriceList", "Home") </li>
+                            </ul>
+                        </li>
+                        <li class="dropdown">
+                            <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                                Settings
+                                <span class="caret"></span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li> @Html.ActionLink("Terms & Conditions", "TermsAndConditions", "Home") </li>
+                                <li>@Html.ActionLink("Default Margin", "OffersSetup", "Admin")</li>
+                            </ul>
+                        </li>
+                        <li>@Html.ActionLink("SignOut", "SignOut", "Account")</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="container body-content">
+            @RenderBody()
+            <hr />
+            <footer>
+                <p>&copy; @DateTime.Now.Year - My ASP.NET Application</p>
+            </footer>
+        </div>
+
+        @if (!HttpContext.Current.Request.Url.AbsolutePath.Contains("Home/OffersPriceList"))
+        {
+            @Scripts.Render("~/bundles/jquerys")
+        }
+        @Scripts.Render("~/bundles/bootstrap")*@
+    @Scripts.Render("~/Script/MyScript")
+    @RenderSection("scripts", required: false)
+</body>
+</html>
+

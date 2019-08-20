@@ -1,0 +1,71 @@
+﻿@model List<TMRC_CSP.Models.PromotionCodes>
+@{
+    ViewBag.Title = "Promotions Code";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+
+<h2>Promotions Code</h2>
+
+
+<div class="row">
+    <div class="col-lg-12 text-right">
+        @Html.ActionLink("Generate New Code", "GenerateCode", "Admin")
+    </div>
+</div>
+
+<div class="table-responsive">
+
+    <table class="table color-table muted-table">
+        <tr>
+            <th>Code</th>
+            <th>Margin%</th>
+            <th>Created Date</th>
+            <th>Expiry Date</th>
+            <th>IsApplied</th>
+            <th>Expire</th>
+            <th>Action</th>
+        </tr>
+
+        @foreach (var i in Model)
+        {
+            <tr>
+                <td>@i.Code</td>
+                <td>@i.Amount</td>
+                <td>@i.CreatedDate</td>
+                <td>@i.ExpiryDate </td>
+                <td>
+                    @if (i.IsApplied == false)
+                {
+                        <p>No</p>
+                    }
+                    else
+                    {
+                        <p>Yes</p>
+                    }
+                </td>
+                <td>
+                    @if (i.IsApplied == false && i.ExpiryDate.Date >= DateTime.Now.Date)
+                {
+                        <p class="text-success">No</p>
+                    }
+                    else
+                    {
+                        <p class="text-danger">Yes</p>
+                    }
+                </td>
+                <td>
+                    @if (i.IsApplied == false && i.ExpiryDate.Date >= DateTime.Now.Date)
+                {
+                        @Html.ActionLink("Edit", "GenerateCode", "Admin", new { id = i.Id }, null)
+                        //, code = i.Code, exp = i.ExpiryDate.Date
+                    }
+                    @Html.ActionLink("Delete", "DeletePromoCode", "Admin", new { id = i.Id }, null)
+                </td>
+
+            </tr>
+        }
+
+    </table>
+
+</div>

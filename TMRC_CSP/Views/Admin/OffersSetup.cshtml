@@ -1,0 +1,54 @@
+﻿@model IList<TMRC_CSP.Models.PartnerAndMicrosoftRepository>
+@{
+    ViewBag.Title = "Offers Setup";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<h2>Offers Setup</h2>
+
+@Html.ActionLink("Add New Offer", "PickMicrosoftOffers", "Admin")
+
+
+
+    <table width="100%" cellpadding="5" cellspacing="5">
+        @for (int i = 0; i < Model.Count(); i++)
+        {
+            <tr>
+                <td>
+                    @Html.ActionLink("Edit", "AddOrUpdate", "Admin", new { Offerid = Model[i].OffersSetup.MicrosoftOfferId }, null)
+                    @Html.ActionLink("Delete", "DeleteOffers", "Admin", new { _p = Model[i].OffersSetup.MicrosoftOfferId }, new { onclick = "return confirm('Are you sure you wish to delete this Reseller Request?');" })
+                </td>
+                <td width="60%">
+
+                    @Html.DisplayFor(m=>m[i].MicrosoftOffer.Offer.Name) - (@Html.DisplayFor(m => m[i].MicrosoftOffer.Offer.Id))
+                    <p>@Model[i].MicrosoftOffer.Offer.Description</p>
+                </td>
+                <td width="40%">
+                     @Html.DisplayFor(m=>m[i].OffersSetup.Title)
+                    <p>Price:  @Html.DisplayFor(m=>m[i].OffersSetup.Price)</p>
+                    <p>Summary: @Html.DisplayFor(m => m[i].OffersSetup.Summary)</p>
+                    <p>Features: @Html.DisplayFor(m => m[i].OffersSetup.Features)</p>
+                </td>
+
+            </tr>
+        }
+        @*@foreach (var i in Model)
+            {
+                <tr>
+                    <td>
+                        @Html.CheckBoxFor(m=>m.off)
+                    </td>
+                    <td width="60%">
+
+                        @i.MicrosoftOffer.Offer.Name - (@i.MicrosoftOffer.Offer.Id)
+                        <p>@i.MicrosoftOffer.Offer.Description</p>
+                    </td>
+                    <td width="40%">
+                        @i.OffersSetup.Title
+                        <p>Price: @i.OffersSetup.Price</p>
+                        <p>Summary: @i.OffersSetup.Summary</p>
+                        <p>Features: @i.OffersSetup.Features</p>
+                    </td>
+                </tr>
+            }*@
+    </table>
